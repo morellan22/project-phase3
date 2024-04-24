@@ -124,5 +124,25 @@ async function getCollection() {
             }
             return [customer, messageError];
         }
-   
-    module.exports = {getCustomers, resetCustomers, getCustomerById}; 
+   async function updateCustomer(updatedCustomer){
+    let messageError=null;
+    let status = MESSAGES.FAIL;
+    try {
+        
+        // connect to the db server
+        const collection = await getCollection();
+        customer = await collection.updateOne({ id: updatedCustomer.id },
+            {$set: updatedCustomer},
+            {upsert: true});
+            status= MESSAGES.SUCCESS;
+     //   throw {"message":"an error occured"};
+        console.log("finish updateCustomer():%s",JSON.stringify(customer));
+        } catch (error) {
+            messageError = error;
+            console.error(error);
+        }finally{
+            await client.close();
+        }
+        return [status, messageError];
+    }
+    module.exports = {getCustomers, resetCustomers, getCustomerById, updateCustomer}; 
