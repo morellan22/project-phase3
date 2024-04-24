@@ -1,5 +1,5 @@
 const express = require('express');
-const { getCustomers } = require('./data-acess');
+const { getCustomers, resetCustomers } = require('./data-acess');
 const app = express();
 const port = 4000;
 
@@ -9,6 +9,17 @@ app.get("/customers", async (req,res)=>{
     const [customers,errorMsg] = await getCustomers();
     if(customers){
         res.send(customers);
+    }
+    else{
+        res.statusCode = 500;
+        res.end(errorMsg.message);
+    }
+})
+app.get("/reset", async (req,res)=>{
+    const [customers,errorMsg] = await resetCustomers();
+    if(customers){
+        res.send(customers);
+
     }
     else{
         res.statusCode = 500;
