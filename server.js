@@ -1,6 +1,6 @@
 const express = require('express');
 const { MESSAGES } = require("./config/constant");
-const { getCustomers, resetCustomers, addCustomer } = require('./data-access');
+const { getCustomers, resetCustomers, addCustomer,getCustomerById } = require('./data-access');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 4000;
@@ -14,8 +14,23 @@ app.get("/customers", async (req, res) => {
         res.send(customers);
     }
     else {
-        res.statusCode = 500;
-        res.send(errorMsg.message);
+        responseServerError(res, errorMsg);
+    }
+})
+app.get("/customers/:id", async (req, res) => {
+    console.log(req.params)
+    if (req.params.id === undefined) {
+        responseMissingBody(res);
+    }
+    else{
+    const [customer, errorMsg] = await getCustomerById(req.params);
+    if (customer) {
+        res.send(customer);
+    }else {
+        res.statusCode = 404;
+        res.send("invalid customer number");
+    }
+
     }
 })
 app.get("/reset", async (req, res) => {
@@ -25,8 +40,7 @@ app.get("/reset", async (req, res) => {
 
     }
     else {
-        res.statusCode = 500;
-        res.send(errorMsg.message);
+        responseServerError(res, errorMsg);
     }
 })
 app.post("/customers", async (req, res) => {
@@ -45,11 +59,20 @@ app.post("/customers", async (req, res) => {
 
     }
     else {
-        res.statusCode = 400;
-        res.send("missing request body");
+        responseMissingBody(res);
     }
 
 
 })
 console.log("Open a browser to http://localhost:" + port + " to view the application");
 app.listen(port);
+function responseServerError(res, errorMsg) {
+    res.statusCode = 500;
+    res.send(errorMsg.message);
+}
+
+function responseMissingBody(res) {
+    res.statusCode = 400;
+    res.send("missing request body");
+}
+

@@ -103,5 +103,26 @@ async function getCollection() {
             console.log("%s %s %s",status,id, messageError)
             return [status,id, messageError];
     }
+
+    async function getCustomerById({id}){
+        let messageError=null;
+        let customer = null;
+        try {
+            
+            // connect to the db server
+            const collection = await getCollection();
+            customer = await collection.findOne({"id":Number(id)});
+            
+         //   throw {"message":"an error occured"};
+            console.log("finish getCustomerById():%s",JSON.stringify(customer));
+            } catch (error) {
+                customer=null;
+                messageError = error;
+                console.error(error);
+            }finally{
+                await client.close();
+            }
+            return [customer, messageError];
+        }
    
-    module.exports = {getCustomers, resetCustomers, addCustomer}; 
+    module.exports = {getCustomers, resetCustomers, getCustomerById}; 
