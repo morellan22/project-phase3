@@ -1,6 +1,6 @@
 // mongodb client driver
 const { MongoClient } = require('mongodb');
-
+const {MESSAGES} = require("./config/constant")
 // DB Connection URL
 var url = "mongodb://127.0.0.1:27017";
 
@@ -80,4 +80,28 @@ async function getCollection() {
             }
             return [messageResult, messageError];
     }
-    module.exports = {getCustomers, resetCustomers}; 
+    async function addCustomer(newCustomer){
+        let messageError=null;
+        let id = null;
+        let status = MESSAGES.FAIL;
+        console.log("%s %s %s",status,id, messageError)
+        try {
+           // throw {"message":"an error occured"};
+            // connect to the db server
+            const collection = await getCollection();
+            await collection.insertOne(newCustomer)
+            id = newCustomer["id"];
+            status = MESSAGES.SUCCESS;
+            
+            console.log("finish addCustomer():%s",JSON.stringify(newCustomer));
+            } catch (error) {
+                messageError = error;
+                console.error(error);
+            }finally{
+                await client.close();
+            }
+            console.log("%s %s %s",status,id, messageError)
+            return [status,id, messageError];
+    }
+   
+    module.exports = {getCustomers, resetCustomers, addCustomer}; 
