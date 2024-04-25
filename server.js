@@ -1,6 +1,6 @@
 const express = require('express');
 const { MESSAGES } = require("./config/constant");
-const { getCustomers, resetCustomers, addCustomer,getCustomerById, updateCustomer } = require('./data-access');
+const { getCustomers, resetCustomers, addCustomer,getCustomerById, updateCustomer, deleteCustomerById } = require('./data-access');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 4000;
@@ -87,6 +87,26 @@ app.put("/customers/:id", async (req,res)=>{
 
     }
 }
+
+})
+app.delete("/customers/:id", async(req,res)=>{
+    console.log(req.params)
+    if (req.params.id === undefined || req.body === undefined) {
+        responseMissingBody(res);
+    }
+    else{
+        let id = Number(req.params.id);
+
+        const [status, messageError] = await deleteCustomerById(id);
+        console.log(status)
+        if (status === MESSAGES.SUCCESS) {
+            res.statusCode = 201;
+            res.send(`Record deleted id: ${id}`);
+        } else {
+            res.statusCode = 400;
+            res.send(messageError.message);
+        }
+    }
 
 })
 console.log("Open a browser to http://localhost:" + port + " to view the application");

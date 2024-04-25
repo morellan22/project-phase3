@@ -145,4 +145,21 @@ async function getCollection() {
         }
         return [status, messageError];
     }
-    module.exports = {getCustomers, resetCustomers, getCustomerById, updateCustomer}; 
+    async function deleteCustomerById(id){
+        let messageError=null;
+        let status = MESSAGES.FAIL;
+        try {
+    //        throw {"message":"an error occured"};
+         const collection = await getCollection();
+            customer = await collection.deleteOne({ id });
+                status= MESSAGES.SUCCESS;
+            console.log("finish deleteCustomerById():%s",JSON.stringify(id));
+        } catch (error) {
+            messageError = error;
+            console.error(error);
+        }finally{
+            await client.close();
+        }
+        return [status, messageError];
+    }
+    module.exports = {getCustomers, resetCustomers, getCustomerById, updateCustomer, deleteCustomerById}; 
