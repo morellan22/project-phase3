@@ -84,7 +84,6 @@ async function getCollection() {
         let messageError=null;
         let id = null;
         let status = MESSAGES.FAIL;
-        console.log("%s %s %s",status,id, messageError)
         try {
            // throw {"message":"an error occured"};
             // connect to the db server
@@ -162,4 +161,28 @@ async function getCollection() {
         }
         return [status, messageError];
     }
-    module.exports = {getCustomers, resetCustomers, getCustomerById, updateCustomer, deleteCustomerById}; 
+    async function getCustomerByValue(filter){
+        let messageError=null;
+        let customers = null;
+        try {
+    //        throw {"message":"an error occured"};
+         const collection = await getCollection();
+         console.log(filter);
+         // clean id to number
+         if(filter.id){
+            let {id, ...filtertmp} = filter;
+            id = +id;
+            filter = {id, ...filtertmp};
+         }
+         console.log(filter);
+            customers = await collection.find(filter).toArray();
+            console.log("finish getCustomerByValue():%s",JSON.stringify(customers));
+        } catch (error) {
+            messageError = error;
+            console.error(error);
+        }finally{
+            await client.close();
+        }
+        return [customers, messageError];
+    }
+    module.exports = {getCustomers, resetCustomers, getCustomerById, updateCustomer, deleteCustomerById, getCustomerByValue, addCustomer}; 
