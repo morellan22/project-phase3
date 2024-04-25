@@ -170,9 +170,7 @@ async function getCollection() {
          console.log(filter);
          // clean id to number
          if(filter.id){
-            let {id, ...filtertmp} = filter;
-            id = +id;
-            filter = {id, ...filtertmp};
+            filter.id = +filter.id;
          }
          console.log(filter);
             customers = await collection.find(filter).toArray();

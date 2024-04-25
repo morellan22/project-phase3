@@ -1,18 +1,26 @@
 const { MESSAGES } = require("../config/constant");
 const { updateCustomer,getCustomerById, getCustomers,getCustomerByValue,deleteCustomerById,resetCustomers,addCustomer } = require("../data-access");
-
+function setResponse(res, code, message){
+    res.status(code);
+    res.send(message);
+}
 function responseServerError(res, errorMsg) {
-    res.statusCode = 500;
-    res.send(errorMsg.message);
+    setResponse(res, 500,errorMsg.message);
 }
 
 function responseMissingBody(res) {
-    res.statusCode = 400;
-    res.send("missing request body");
+    setResponse(res, 400,"missing request body");
 }
 function responseMissingQueryString(res){
-    res.statusCode = 400;
-    res.send("query string is required");    
+    setResponse(res, 400,"name must be one of the following (id, email, password)");    
+}
+function responseNotMatch(res){
+    setResponse(res, 404,"no matching customer documents found");    
+}
+function validateQueryString(req){
+    const requiredFields = ["id", "email", "password"];
+    return (Object.keys(req.query).length&&(requiredFields.some((value)=>Object.keys(req.query).includes(value))));
+
 }
 async function getCustomersController (req, res) {
     const [customers, errorMsg] = await getCustomers();
@@ -28,7 +36,7 @@ async function getCustomerByValueController(req, res) {
     if(req.params.id === 'find'){
         console.log(req.query)
         console.log(Object.keys(req.query).length)
-        if (Object.keys(req.query).length) {
+        if (validateQueryString(req)) {
             let filter;
             if(req.query.api_key){
                 ({api_key,...filter}=req.query);
@@ -40,8 +48,7 @@ async function getCustomerByValueController(req, res) {
         if (customer) {
             res.send(customer);
         }else {
-            res.statusCode = 404;
-            res.send("invalid customer value");
+            responseNotMatch(res);
         }
         }
         else{
@@ -57,8 +64,7 @@ async function getCustomerByValueController(req, res) {
     if (customer) {
         res.send(customer);
     }else {
-        res.statusCode = 404;
-        res.send("invalid customer number");
+        setResponse(res, 404,"invalid customer number");
     }
 
     }
@@ -82,11 +88,9 @@ async function addCustomerController(req, res) {
         const [status, id, messageError] = await addCustomer(req.body);
         console.log(status)
         if (status === MESSAGES.SUCCESS) {
-            res.statusCode = 201;
-            res.send(`Record inserted id: ${id}`);
+            setResponse(res, 201,`Record inserted id: ${id}`);
         } else {
-            res.statusCode = 400;
-            res.send(messageError.message);
+            setResponse(res, 400,messageError.message);
         }
 
     }
@@ -110,11 +114,9 @@ async function updateCustomerController(req,res){
         const [status, messageError] = await updateCustomer(updatedCustomer);
         console.log(status)
         if (status === MESSAGES.SUCCESS) {
-            res.statusCode = 201;
-            res.send(`Record updated id: ${updatedCustomer.id}`);
+            setResponse(res, 201,`Record updated id: ${updatedCustomer.id}`);
         } else {
-            res.statusCode = 400;
-            res.send(messageError.message);
+            setResponse(res, 400, messageError.message);
         }
 
     }
@@ -132,11 +134,9 @@ async function updateCustomerController(req,res){
         const [status, messageError] = await deleteCustomerById(id);
         console.log(status)
         if (status === MESSAGES.SUCCESS) {
-            res.statusCode = 201;
-            res.send(`Record deleted id: ${id}`);
+            setResponse(res, 201,`Record deleted id: ${id}`);
         } else {
-            res.statusCode = 400;
-            res.send(messageError.message);
+            setResponse(res, 400,messageError.message);
         }
     }
 
