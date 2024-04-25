@@ -45,7 +45,7 @@ async function getCustomerByValueController(req, res) {
             filter=req.query;
         }
         const [customer, errorMsg] = await getCustomerByValue(filter);
-        if (customer) {
+        if (customer.length) {
             res.send(customer);
         }else {
             responseNotMatch(res);
